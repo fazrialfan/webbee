@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Get, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
@@ -92,7 +92,17 @@ export class EventsService {
 
   @Get('events')
   async getEventsWithWorkshops() {
-    throw new Error('TODO task 1');
+    return await this.eventRepository.find({
+      relations: {
+        workshops: true
+      },
+      order: {
+        id: 1,
+        workshops: {
+          id: 1,
+        },
+      },
+    });
   }
 
   /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
@@ -162,6 +172,33 @@ export class EventsService {
      */
   @Get('futureevents')
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    // Could've done this because all the createdAt timestamp is same
+    // return await this.eventRepository.find({
+    //   where: {
+    //     id: MoreThan(1)
+    //   }
+    // });
+
+    const [firstEvent] = await this.eventRepository.find({
+      order: {
+        id: 1,
+      },
+      take: 1,
+    });
+
+    return await this.eventRepository.find({
+      where: {
+        id: MoreThan(firstEvent.id)
+      },
+      order: {
+        id: 1,
+        workshops: {
+          id: 1,
+        },
+      },
+      relations: {
+        workshops: true,
+      },
+    });
   }
 }

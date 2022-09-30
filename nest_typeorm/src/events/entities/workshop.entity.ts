@@ -15,6 +15,15 @@ export class Workshop {
   @Column({ type: 'integer', default: null })
   eventId: number;
 
+  @ManyToOne(
+    () => Event,
+    event => event.workshops,
+    {
+      eager: false,
+    }
+  )
+  event: Event;
+
   @Column()
   name: string;
 
